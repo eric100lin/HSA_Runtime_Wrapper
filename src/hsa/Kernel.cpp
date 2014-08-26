@@ -1,6 +1,8 @@
 #include <hsa/Kernel.h>
 #include <hsa/Context.h>
 #include <hsa/Exception.h>
+#include <hsa/RegisterMemory.h>
+#include <hsa/CommandQueue.h>
 #include <cstring>
 
 using namespace hsa;
@@ -35,8 +37,6 @@ Kernel::Kernel(Context *context, hsa_ext_code_descriptor_t *hsaCodeDescriptor)
     err = hsa_memory_allocate(kernarg_region, kernel_arg_buffer_size,
                         &_kernel_arg_buffer);
 	CHECK_HSA(Allocating kernel argument memory buffer, err);
-	
-	_argPtr = _kernel_arg_buffer;
 }
 
 Kernel::~Kernel()
@@ -45,21 +45,34 @@ Kernel::~Kernel()
 		hsa_memory_free(_kernel_arg_buffer);
 }
 
-Kernel& Kernel::operator << (void *val) 
-{		
-	memcpy(_argPtr, val, sizeof(void*));
-	_argPtr+=sizeof(void *);
+uint64_t Kernel::getKernArgAddress() const
+{
+	return (uint64_t)_kernel_arg_buffer;
+}
+
+uint64_t Kernel::getExtCodeHandle() const
+{
+	return _hsaCodeDescriptor->code.handle;
+}
+
+void Kernel::operator() (unsigned int argumentIndex, void *val)
+{
+	void *ptrArg = _kernel_arg_buffer+sizeof(void *)*argumentIndex;
+	memcpy(ptrArg, val, sizeof(void*));
+}
+
+KernelArgs::KernelArgs(hsa::Kernel *kernel) : _kernel(kernel), _argIndex(0)
+{
+}
+
+KernelArgs& KernelArgs::operator << (void *val)
+{
+	(*_kernel)(_argIndex++, val);
 	return *this;
 }
 
-/*Kernel& Kernel::operator << (hsa::RegisterMemory& memory)
+KernelArgs& KernelArgs::operator << (hsa::RegisterMemory* memory)
 {
-	*_argPtr = memory.ptr();
-	_argPtr+=sizeof(void *);
+	(*_kernel)(_argIndex++, memory->ptr());
 	return *this;
-}*/
-
-int Kernel::status() const
-{
-	return _status;
 }

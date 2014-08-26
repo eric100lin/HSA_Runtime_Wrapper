@@ -4,6 +4,13 @@
 using namespace hsa;
 using namespace std;
 
+Exception::Exception(const char* message, const char *_file_, int _line_)
+{
+	stringstream ss;
+	ss << message << "\nfile: " << _file_ << ", line: " << _line_;
+	status_str = ss.str().c_str();
+}
+
 Exception::Exception(const hsa_status_t &status, const char *_file_, int _line_, const char* message)
 {
 	stringstream ss;
@@ -107,7 +114,6 @@ Exception::Exception(const status_t &status, const char *_file_, int _line_, con
 		ss << ", message: " << message;
 	status_str = ss.str().c_str();
 }
-
 
 void Exception::Check(const char* message, const hsa_status_t &status, const char *_file_, int _line_)
 {
