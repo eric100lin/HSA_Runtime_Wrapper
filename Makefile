@@ -51,7 +51,6 @@ clean:
 	rm $(CLbins)
 	rm -fr $(OBJ_DIR)/
 	rm $(PROGRAM_NAME)
-	rm -rf *.brig
 
 check-cloc-env:
 ifndef HSA_CLOC_PATH

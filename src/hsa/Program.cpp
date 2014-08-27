@@ -132,7 +132,7 @@ Program::~Program()
 	destroy_brig_module(_brigModule);
 }
 
-Kernel *Program::operator[] (const char *kernelName) const
+Kernel Program::operator[] (const char *kernelName) const
 {
     /* 
      * Construct finalization request list.
@@ -158,5 +158,5 @@ Kernel *Program::operator[] (const char *kernelName) const
 		finalization_request_list.symbol, &hsaCodeDescriptor);
     CHECK_HSA(Querying the kernel descriptor address, err);
 	
-	return new Kernel(_context, hsaCodeDescriptor);
+	return Kernel(_context, hsaCodeDescriptor);
 }

@@ -20,7 +20,7 @@ namespace hsa
 			
 			Program(Context *context, const char *fileName);
 			~Program();
-			Kernel *operator[] (const char *kernelName) const;
+			Kernel operator[] (const char *kernelName) const;
 	};
 } // namespace hsa
 
