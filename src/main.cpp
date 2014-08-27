@@ -53,7 +53,7 @@ int main()
 
 	Context hsaContext(HSA_DEVICE_TYPE_GPU);
 	CommandQueue hsaCommandQueue(&hsaContext, HSA_QUEUE_TYPE_MULTI);
-	Program vectorCopyProgram(&hsaContext, "vector_copy.brig");
+	Program vectorCopyProgram(&hsaContext, "src_cl/vector_copy.brig");
 	Kernel vectorCopyKernel = vectorCopyProgram["&__OpenCL_vector_copy_kernel"];
 
 	//Prepare input/output memory.
