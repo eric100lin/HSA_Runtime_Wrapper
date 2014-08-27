@@ -18,10 +18,10 @@ RegisterMemory::RegisterMemory(size_t size) : _size(size)
 
 RegisterMemory::~RegisterMemory()
 {
-	free(_address);
-
     hsa_status_t err=hsa_memory_deregister(_address, _size);
     CHECK_HSA(De-Registering argument memory for input parameter, err);
+
+    free(_address);
 }
 
 void *RegisterMemory::ptr() const

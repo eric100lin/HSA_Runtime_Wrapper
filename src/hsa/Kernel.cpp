@@ -41,6 +41,7 @@ Kernel::Kernel(Context *context, hsa_ext_code_descriptor_t *hsaCodeDescriptor)
 
 Kernel::~Kernel()
 {
+//This will cause strange segmentation fault!!
 	if(_kernel_arg_buffer!=nullptr)
 		hsa_memory_free(_kernel_arg_buffer);
 }

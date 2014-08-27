@@ -7,12 +7,12 @@
 
 using namespace hsa;
 
-CommandQueue::CommandQueue(Context *context, hsa_queue_type_t queueType, size_t queueSize)
+CommandQueue::CommandQueue(Context *context, hsa_queue_type_t queueType, uint32_t queueSize)
 	: _context(context)
 {
 	hsa_agent_t hsaAgent = context->getHsaAgent();
 	
-	size_t maxQueueSize;
+	uint32_t maxQueueSize;
 	context->getHsaAgentInfo(HSA_AGENT_INFO_QUEUE_MAX_SIZE, &maxQueueSize);
 
     hsa_status_t err = hsa_queue_create(hsaAgent, queueSize==0?maxQueueSize:queueSize,

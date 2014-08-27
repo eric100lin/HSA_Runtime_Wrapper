@@ -16,7 +16,7 @@ namespace hsa
 			hsa_queue_t *_hsaCommandQueue;
 			Context *_context;
 			
-			CommandQueue(Context *context, hsa_queue_type_t queueType=HSA_QUEUE_TYPE_MULTI, size_t queueSize=0);
+			CommandQueue(Context *context, hsa_queue_type_t queueType=HSA_QUEUE_TYPE_MULTI, uint32_t queueSize=0);
 			~CommandQueue();
 
 			hsa_dispatch_packet_t makeAqlPacket(const Kernel *kernel,

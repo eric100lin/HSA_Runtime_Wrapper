@@ -13,14 +13,14 @@
 using namespace std;
 using namespace hsa;
 
-void printHSAContextInfo(Context hsaContext)
+void printHSAContextInfo(Context *hsaContext)
 {
 	char name[64] = {0};
-	hsaContext.getHsaAgentInfo(HSA_AGENT_INFO_NAME, name);
+	hsaContext->getHsaAgentInfo(HSA_AGENT_INFO_NAME, name);
 	cout << "HSA device name : " << name << endl;
 
 	uint32_t queue_size = 0;
-	hsaContext.getHsaAgentInfo(HSA_AGENT_INFO_QUEUE_MAX_SIZE, &queue_size);
+	hsaContext->getHsaAgentInfo(HSA_AGENT_INFO_QUEUE_MAX_SIZE, &queue_size);
 	cout << "The maximum queue size is : " << queue_size << endl;
 }
 
@@ -51,27 +51,34 @@ int main()
 {
 	cout << "HSA Vector copy example start!!" << endl;
 
-	Context hsaContext(HSA_DEVICE_TYPE_GPU);
-	CommandQueue hsaCommandQueue(&hsaContext, HSA_QUEUE_TYPE_MULTI);
-	Program vectorCopyProgram(&hsaContext, "src_cl/vector_copy.brig");
-	Kernel vectorCopyKernel = vectorCopyProgram["&__OpenCL_vector_copy_kernel"];
+	Context *hsaContext = new Context(HSA_DEVICE_TYPE_GPU);
+	CommandQueue *hsaCommandQueue = new CommandQueue(hsaContext, HSA_QUEUE_TYPE_MULTI);
+	Program *vectorCopyProgram = new Program(hsaContext, "src_cl/vector_copy.brig");
+	Kernel *vectorCopyKernel = (*vectorCopyProgram)["&__OpenCL_vector_copy_kernel"];
 
 	//Prepare input/output memory.
-	RegisterMemory input(1024*1024*sizeof(int));
-	RegisterMemory output(1024*1024*sizeof(int));
-	int *ptrInput = input.getAddress<int>();
+	RegisterMemory *input = new RegisterMemory(1024*1024*sizeof(int));
+	RegisterMemory *output = new RegisterMemory(1024*1024*sizeof(int));
+	int *ptrInput = input->getAddress<int>();
 	srand(time(NULL));
 	for(unsigned int i=0; i<1024*1024; i++)
 		ptrInput[i] = rand();
 
-	KernelArgs(&vectorCopyKernel) << &input << &output;
+	KernelArgs(vectorCopyKernel) << input << output;
 	WorkSize global(1024*1024), local(256);
 	hsa_dispatch_packet_t packet =
-			hsaCommandQueue.makeAqlPacket(&vectorCopyKernel, global, local);
-	hsaCommandQueue.enqueueNDRangeKernel(packet);
+			hsaCommandQueue->makeAqlPacket(vectorCopyKernel, global, local);
+	hsaCommandQueue->enqueueNDRangeKernel(packet);
 
 	printHSAContextInfo(hsaContext);
-	checkResult(input.getAddress<int>(), output.getAddress<int>());
+	checkResult(input->getAddress<int>(), output->getAddress<int>());
+
+	delete input;
+	delete output;
+	delete vectorCopyKernel;
+	delete vectorCopyProgram;
+	delete hsaCommandQueue;
+	delete hsaContext;
 
 	return 0;
 }

@@ -128,11 +128,12 @@ Program::Program(Context *context, const char *fileName)
 
 Program::~Program()
 {
-	hsa_ext_program_destroy(_hsaProgram);
+	//This will cause strange segmentation fault!!
+//	hsa_ext_program_destroy(_hsaProgram);
 	destroy_brig_module(_brigModule);
 }
 
-Kernel Program::operator[] (const char *kernelName) const
+Kernel *Program::operator[] (const char *kernelName) const
 {
     /* 
      * Construct finalization request list.
@@ -158,5 +159,5 @@ Kernel Program::operator[] (const char *kernelName) const
 		finalization_request_list.symbol, &hsaCodeDescriptor);
     CHECK_HSA(Querying the kernel descriptor address, err);
 	
-	return Kernel(_context, hsaCodeDescriptor);
+	return new Kernel(_context, hsaCodeDescriptor);
 }
