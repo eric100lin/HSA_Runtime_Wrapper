@@ -128,8 +128,7 @@ Program::Program(Context *context, const char *fileName)
 
 Program::~Program()
 {
-	//This will cause strange segmentation fault!!
-//	hsa_ext_program_destroy(_hsaProgram);
+	hsa_ext_program_destroy(_hsaProgram);
 	destroy_brig_module(_brigModule);
 }
 
