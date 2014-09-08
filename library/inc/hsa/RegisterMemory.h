@@ -12,14 +12,16 @@ namespace hsa
 		friend class KernelArgs;
 
 		private:
+			bool needToFree;
 			size_t _size;
 			void* _address;
 
 		protected:
-			void *ptr() const;
+			const void *ptr() const;
 
 		public:
 			RegisterMemory(size_t size);
+			RegisterMemory(size_t size, void *memory);
 			~RegisterMemory();
 
 			template<typename _Tp> _Tp* getAddress(int offset=0)

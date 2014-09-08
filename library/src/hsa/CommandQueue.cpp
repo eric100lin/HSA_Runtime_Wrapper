@@ -15,7 +15,8 @@ CommandQueue::CommandQueue(Context *context, hsa_queue_type_t queueType, uint32_
 	uint32_t maxQueueSize;
 	context->getHsaAgentInfo(HSA_AGENT_INFO_QUEUE_MAX_SIZE, &maxQueueSize);
 
-    hsa_status_t err = hsa_queue_create(hsaAgent, queueSize==0?maxQueueSize:queueSize,
+	size_t dstQueueSize = queueSize==0?maxQueueSize:queueSize;
+    hsa_status_t err = hsa_queue_create(hsaAgent, dstQueueSize,
     		queueType, NULL, NULL, &_hsaCommandQueue);
     CHECK_HSA(Creating the queue, err);
 }

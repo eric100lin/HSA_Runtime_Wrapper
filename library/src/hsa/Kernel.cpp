@@ -5,6 +5,12 @@
 #include <hsa/CommandQueue.h>
 #include <cstring>
 
+#if defined(__APPLE__) || defined(MACOSX)
+    #include <OpenCL/cl.h>
+#else
+    #include <CL/cl.h>
+#endif
+
 using namespace hsa;
 
 /*
@@ -23,7 +29,7 @@ static hsa_status_t get_kernarg(hsa_region_t region, void* data) {
 }
 
 Kernel::Kernel(Context *context, hsa_ext_code_descriptor_t *hsaCodeDescriptor)
-	: _context(context), _hsaCodeDescriptor(hsaCodeDescriptor), _kernel_arg_buffer(nullptr)
+	: _context(context),  _kernel_arg_buffer(nullptr), _hsaCodeDescriptor(hsaCodeDescriptor)
 {
     /*
      * Find a memory region that supports kernel arguments.
@@ -55,24 +61,96 @@ uint64_t Kernel::getExtCodeHandle() const
 	return _hsaCodeDescriptor->code.handle;
 }
 
-void Kernel::operator() (unsigned int argumentIndex, void *val)
+void Kernel::setKernelArg(unsigned int offset, size_t size, const void *argument)
 {
-	void *ptrArg = _kernel_arg_buffer+sizeof(void *)*argumentIndex;
-	memcpy(ptrArg, val, sizeof(void*));
+	void *ptrArg = _kernel_arg_buffer+offset;
+	memcpy(ptrArg, argument, size);
 }
 
-KernelArgs::KernelArgs(hsa::Kernel *kernel) : _kernel(kernel), _argIndex(0)
+KernelArgs::KernelArgs(hsa::Kernel *kernel) : _argOffset(0), _kernel(kernel)
 {
 }
 
-KernelArgs& KernelArgs::operator << (void *val)
+KernelArgs& KernelArgs::operator << (enum Alignment alignment)
 {
-	(*_kernel)(_argIndex++, val);
+	_argOffset += alignment;
 	return *this;
 }
 
-KernelArgs& KernelArgs::operator << (hsa::RegisterMemory* memory)
+KernelArgs& KernelArgs::operator << (const char * val)
 {
-	(*_kernel)(_argIndex++, memory->ptr());
+	_kernel->setKernelArg(_argOffset, sizeof(cl_char), val);
+	_argOffset += sizeof(cl_char);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const unsigned char * val)
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_uchar), val);
+	_argOffset += sizeof(cl_uchar);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const short * val)
+
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_short), val);
+	_argOffset += sizeof(cl_short);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const unsigned short * val)
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_ushort), val);
+	_argOffset += sizeof(cl_ushort);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const int * val)
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_int), val);
+	_argOffset += sizeof(cl_int);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const unsigned int * val)
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_uint), val);
+	_argOffset += sizeof(cl_uint);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const long * val)
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_long), val);
+	_argOffset += sizeof(cl_long);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const unsigned long * val)
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_ulong), val);
+	_argOffset += sizeof(cl_ulong);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const float * val)
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_float), val);
+	_argOffset += sizeof(cl_float);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const double * val)
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_double), val);
+	_argOffset += sizeof(cl_double);
+	return *this;
+}
+
+KernelArgs& KernelArgs::operator << (const hsa::RegisterMemory* memory)
+{
+	_kernel->setKernelArg(_argOffset, sizeof(cl_mem), memory->ptr());
+	_argOffset += sizeof(cl_mem);
 	return *this;
 }

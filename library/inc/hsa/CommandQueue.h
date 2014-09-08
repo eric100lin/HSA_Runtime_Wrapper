@@ -12,10 +12,11 @@ namespace hsa
 
 	class CommandQueue
 	{
-		public:
+		private:
 			hsa_queue_t *_hsaCommandQueue;
 			Context *_context;
-			
+
+		public:
 			CommandQueue(Context *context, hsa_queue_type_t queueType=HSA_QUEUE_TYPE_MULTI, uint32_t queueSize=0);
 			~CommandQueue();
 
