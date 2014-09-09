@@ -38,5 +38,6 @@ $(OBJ_DIR)/%.o : %.c
 
 clean:
 	rm -fr $(OBJ_DIR)/
+	rm -f $(LIBRARY_NAME)
 
 .PHONY: before_compile after_compile

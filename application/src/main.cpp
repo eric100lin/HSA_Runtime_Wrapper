@@ -54,7 +54,7 @@ int main()
 	Context hsaContext(HSA_DEVICE_TYPE_GPU);
 	CommandQueue hsaCommandQueue(&hsaContext, HSA_QUEUE_TYPE_MULTI);
 	Program vectorCopyProgram(&hsaContext, "src_cl/vector_copy.brig");
-	Kernel vectorCopyKernel = vectorCopyProgram["&__OpenCL_vector_copy_kernel"];
+	Kernel *vectorCopyKernel = vectorCopyProgram["&__OpenCL_vector_copy_kernel"];
 
 	//Prepare input/output memory.
 	RegisterMemory input(1024*1024*sizeof(int));
@@ -64,10 +64,10 @@ int main()
 	for(unsigned int i=0; i<1024*1024; i++)
 		ptrInput[i] = rand();
 
-	KernelArgs(&vectorCopyKernel) << &input << &output;
+	KernelArgs(vectorCopyKernel) << &input << &output;
 	WorkSize global(1024*1024), local(256);
 	hsa_dispatch_packet_t packet =
-			hsaCommandQueue.makeAqlPacket(&vectorCopyKernel, global, local);
+			hsaCommandQueue.makeAqlPacket(vectorCopyKernel, global, local);
 	hsaCommandQueue.enqueueNDRangeKernel(packet);
 
 	printHSAContextInfo(&hsaContext);
