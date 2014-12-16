@@ -55,8 +55,8 @@ hsa_dispatch_packet_t CommandQueue::makeAqlPacket(const Kernel *kernel,
     aql.header.acquire_fence_scope=2;
     aql.header.release_fence_scope=2;
     aql.header.barrier=1;
-    aql.group_segment_size=0;
-    aql.private_segment_size=0;
+    aql.group_segment_size=kernel->getGroupSegmentSize();
+    aql.private_segment_size=kernel->getPrivateSegmentSize();
     aql.kernel_object_address=kernel->getExtCodeHandle();
     aql.kernarg_address=kernel->getKernArgAddress();
 
@@ -72,7 +72,7 @@ void CommandQueue::enqueueNDRangeKernel(hsa_dispatch_packet_t aqlPacket)
     const uint32_t queueMask = _hsaCommandQueue->size - 1;
     ((hsa_dispatch_packet_t*)(_hsaCommandQueue->base_address))[index&queueMask]=aqlPacket;
     hsa_queue_store_write_index_relaxed(_hsaCommandQueue, index+1);
-    hsa_signal_store_relaxed(_hsaCommandQueue->doorbell_signal, index+1);
+    hsa_signal_store_relaxed(_hsaCommandQueue->doorbell_signal, index);
 
     hsa_signal_value_t signalValue =
     		hsa_signal_wait_acquire(aqlPacket.completion_signal, HSA_LT, 1,

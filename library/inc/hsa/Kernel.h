@@ -21,8 +21,10 @@ namespace hsa
 		protected:
 			uint64_t getKernArgAddress() const;
 			uint64_t getExtCodeHandle() const;
-			void setKernelArg(unsigned int offset, size_t size, const void *argument);
+			uint32_t getGroupSegmentSize() const;
+			uint32_t getPrivateSegmentSize() const;
 		public:
+			void setKernelArg(unsigned int offset, size_t size, const void *argument);
 			Kernel(Context *context, hsa_ext_code_descriptor_t *hsaCodeDescriptor);
 			~Kernel();
 	};

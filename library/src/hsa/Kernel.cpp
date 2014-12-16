@@ -61,6 +61,16 @@ uint64_t Kernel::getExtCodeHandle() const
 	return _hsaCodeDescriptor->code.handle;
 }
 
+uint32_t Kernel::getGroupSegmentSize() const
+{
+	return _hsaCodeDescriptor->workgroup_group_segment_byte_size;
+}
+
+uint32_t Kernel::getPrivateSegmentSize() const
+{
+	return _hsaCodeDescriptor->workitem_private_segment_byte_size;
+}
+
 void Kernel::setKernelArg(unsigned int offset, size_t size, const void *argument)
 {
 	void *ptrArg = _kernel_arg_buffer+offset;
